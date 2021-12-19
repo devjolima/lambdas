@@ -1,0 +1,37 @@
+service:
+  name: function-lambda-capgemini
+
+plugins:
+  - 'serverless-plugin-typescript'
+  - serverless-plugin-optimize
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - sqs:SendMessage
+          Resource:
+            - Fn::GetAtt: [ QueueDemo, Arn ]
+
+resources:
+  Resources:
+    QueueDemo:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: QueueDemo
+
+functions:
+  main:
+    handler: src/lambda.handler
+    events:
+      - http:
+          method: get
+          path: /api/hello
+      - http:
+          method: post
+          path: /api/send
